@@ -1,0 +1,91 @@
+/* General Card Styling */
+.card {
+    border: 1px solid #ddd;
+    /* Adds a light border around the card */
+    border-radius: 8px;
+    /* Rounds the corners of the card */
+    overflow: hidden;
+    /* Ensures content stays within rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Adds a shadow for a lifted effect */
+    transition: transform 0.3s ease;
+    /* Smooth transition for hover effect */
+}
+
+.card:hover {
+    transform: scale(1.02);
+    /* Slightly enlarges the card on hover */
+}
+
+.card img {
+    width: 100%;
+    /* Makes the image stretch to fill the card width */
+    height: auto;
+    /* Keeps the image aspect ratio */
+}
+
+.card-body {
+    padding: 16px;
+    /* Adds padding inside the card body */
+}
+
+.card-title {
+    font-size: 1.25rem;
+    /* Increases the title font size */
+    margin-bottom: 0.5rem;
+    /* Adds space below the title */
+}
+
+.card-text {
+    font-size: 1rem;
+    /* Sets the font size for the description */
+    color: #666;
+    /* Adds a slightly gray color for the text */
+}
+
+.list-group-item {
+    border: none;
+    /* Removes border from list items */
+    padding: 10px 16px;
+    /* Adds padding to the list items */
+}
+
+.card-link {
+    text-decoration: none;
+    /* Removes underline from links */
+    color: white;
+    /* Sets link text color to white */
+}
+
+.btn-warning {
+    background-color: #f0ad4e;
+    /* Sets background color for the edit button */
+    border-color: #f0ad4e;
+    /* Sets border color to match button background */
+}
+
+.btn-warning:hover {
+    background-color: #ec971f;
+    /* Darkens button color on hover */
+    border-color: #ec971f;
+    /* Darkens border color on hover */
+}
+
+.btn-danger {
+    background-color: #d9534f;
+    /* Sets background color for the delete button */
+    border-color: #d9534f;
+    /* Sets border color to match button background */
+}
+
+.btn-danger:hover {
+    background-color: #c9302c;
+    /* Darkens button color on hover */
+    border-color: #c9302c;
+    /* Darkens border color on hover */
+}
+
+.d-inline {
+    display: inline-block;
+    /* Ensures the form displays inline with other elements */
+}
