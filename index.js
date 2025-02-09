@@ -101,6 +101,7 @@ app.delete('/campground/:id/reviews/:reviewId', wrapAsync(async (req, res) => {
 app.all(/(.*)/, (req, res, next) => {
     next(new ExpressError(404, 'Page not found'))
 })
+//this code catches error and returns the status
 app.use((err, req, res, next) => {
     const { status = 500 } = err;
     if (!err.message) { err.message = 'Oh no Something went wrong' }
