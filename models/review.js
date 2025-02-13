@@ -6,10 +6,12 @@ const reviewSchema = new Schema({
         required: true
     },
     rating: Number,
-    campground: {
+    author: {
         type: Schema.Types.ObjectId,
-        ref: 'Campground'
+        ref: 'User'
     }
+
+
 })
 const Review = mongoose.model("Review", reviewSchema)
 module.exports = Review
