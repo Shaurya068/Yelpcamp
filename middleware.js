@@ -1,7 +1,8 @@
 const Review = require('./models/review')
 const Campground = require('./models/campground')
-
-
+const { reviewSchema } = require('./schemas')
+const { campgroundSchema } = require('./schemas')
+const ExpressError = require('./utils/ExpressError')
 module.exports.isLoggedIn = (req, res, next) => {
     if (!req.isAuthenticated()) {
         req.session.originalPath = req.originalUrl
@@ -17,7 +18,9 @@ module.exports.storeRequiredPath = (req, res, next) => {
     }
     next();
 }
-module.exports.isAuthor = async (req, res) => {
+module.exports.isAuthor = async (req, res, next) => {
+    console.log(req.params)
+    console.log(req.user)
     const { id } = req.params;
     const campground = await Campground.findById(id)
     if (!campground.author.equals(req.user._id)) {
@@ -42,3 +45,24 @@ module.exports.reviewAuthor = async (req, res, next) => {
 
     next();
 };
+module.exports.validateCampground = (req, res, next) => {
+    console.log("Request Body:", req.body); // Debugging
+    const { error } = campgroundSchema.validate(req.body)
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new ExpressError(400, msg)
+    } else {
+        next()
+    }
+}
+module.exports.validateReview = (req, res, next) => {
+    const { error } = reviewSchema.validate(req.body)
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new ExpressError(400, msg)
+
+    } else {
+        next()
+    }
+}
+

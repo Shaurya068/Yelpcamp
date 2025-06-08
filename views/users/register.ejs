@@ -1,24 +1,74 @@
-<% layout('/layouts/boilerplate')%>
-    <h1>Register</h1>
-    <form action="/register" method="post" class="validated-form" novalidate>
-        <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" name="username" id="username" required>
-            <div class="invalid-feedback">Please provide a Username.</div>
-            <div class="valid-feedback">Looks good!</div>
-        </div>
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" name="email" id="email" required>
-            <div class="invalid-feedback">Please provide a valid Email.</div>
-            <div class="valid-feedback">Looks good!</div>
-        </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" name="password" id="password" required>
-            <div class="invalid-feedback">Please provide a valid Password.</div>
-            <div class="valid-feedback">Looks good!</div>
-        </div>
-        <button class="btn btn-success">Submit</button>
+<style>
+  .navbar-custom {
+    background-color: rgba(0, 0, 0, 0.7); /* semi-transparent */
+    backdrop-filter: blur(5px);
+  }
 
-    </form>
+  .navbar-brand {
+    font-weight: 600;
+    color: #ffcc00 !important;
+    letter-spacing: 1px;
+  }
+
+  .nav-link {
+    color: white !important;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease-in-out;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .nav-link:hover {
+    color: #ffcc00 !important;
+    border-bottom: 2px solid rgba(255, 204, 0, 0.6);
+  }
+
+  .nav-link.active {
+    border-bottom: 2px solid #ffcc00;
+    color: #ffcc00 !important;
+  }
+
+  .navbar-toggler {
+    border-color: #ffcc00;
+  }
+
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 204, 0, 0.9)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22' /%3E%3C/svg%3E");
+  }
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">YelpCamp</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath === '/' ? 'active' : '' %>" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath === '/campground' ? 'active' : '' %>" href="/campground">Campgrounds</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= currentPath === '/campground/new' ? 'active' : '' %>" href="/campground/new">New Campground</a>
+        </li>
+        <% if (currentUser) { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
+          </li>
+        <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/login">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/register">Register</a>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</nav>

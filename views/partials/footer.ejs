@@ -1,5 +1,31 @@
-<footer class="footer footer-dark bg-dark py-3 mt-auto">
+<style>
+    .footer {
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255, 204, 0, 0.1);
+    }
+
+    .footer-text {
+        color: #aaa;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .footer-text a {
+        color: #ffcc00;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .footer-text a:hover {
+        color: #e6b800;
+    }
+</style>
+
+<footer class="footer py-3">
     <div class="container">
-        <span class="text-muted">&copyYelpCamp</span>
+        <p class="footer-text text-center mb-0">
+            &copy; <%= new Date().getFullYear() %> <a href="/">YelpCamp</a>
+        </p>
     </div>
 </footer>

@@ -1,3 +1,8 @@
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config();
+}
+
+
 const express = require('express')
 const path = require('path')
 const session = require('express-session')
@@ -14,9 +19,16 @@ const User = require('./models/user.js')
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
 const users = require('./routes/users.js')
+const sanitizeV5 = require('./utils/mongoSanitizeV5.js');
+
+
+
 mongoose.connect('mongodb://127.0.0.1:27017/YelpCamp').then(() => console.log('Up and running!!!')).catch(err => console.log(err));
 app.set('views', path.join(__dirname, '/views'))
 app.set('view engine', 'ejs')
+app.set('query parser', 'extended');
+
+
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 const sessionConfig = {
@@ -40,6 +52,7 @@ passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 app.use((req, res, next) => {
     res.locals.currentUser = req.user
+    res.locals.currentPath=req.path
     res.locals.success = req.flash('success')
     res.locals.error = req.flash('error')
     next()
