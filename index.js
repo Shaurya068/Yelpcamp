@@ -22,7 +22,7 @@ const LocalStrategy = require('passport-local')
 const users = require('./routes/users.js')
 const sanitizeV5 = require('./utils/mongoSanitizeV5.js');
 const helmet = require('helmet');
-const dbUrl='mongodb://127.0.0.1:27017/YelpCamp'
+const dbUrl=process.env.DB_URL
 const MongoDBStore=require("connect-mongo")(session)
 mongoose.connect(dbUrl).then(() => console.log('Up and running!!!')).catch(err => console.log(err));
 app.set('views', path.join(__dirname, '/views'))
