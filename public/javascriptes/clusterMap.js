@@ -1,12 +1,18 @@
-mapboxgl.accessToken = mapToken;
-const map = new mapboxgl.Map({
+maptilersdk.config.apiKey = mapToken;
+
+const map = new maptilersdk.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/streets-v12',
+    style: maptilersdk.MapStyle.STREETS,
     center: [-103.59179687498357, 40.66995747013945],
     zoom: 3
 });
 
 map.on('load', () => {
+    if (!campgrounds || !campgrounds.features) {
+        console.error('No campground data available');
+        return;
+    }
+
     map.addSource('campgrounds', {
         type: 'geojson',
         data: campgrounds,
@@ -67,22 +73,22 @@ map.on('load', () => {
         }
     });
 
+    // 🔁 Replaced problematic getClusterExpansionZoom with manual zoom
     map.on('click', 'clusters', (e) => {
         const features = map.queryRenderedFeatures(e.point, {
             layers: ['clusters']
         });
-        const clusterId = features[0].properties.cluster_id;
-        map.getSource('campgrounds').getClusterExpansionZoom(
-            clusterId,
-            (err, zoom) => {
-                if (err) return;
+        if (!features.length) return;
 
-                map.easeTo({
-                    center: features[0].geometry.coordinates,
-                    zoom: zoom
-                });
-            }
-        );
+        const coordinates = features[0].geometry.coordinates.slice();
+        const currentZoom = map.getZoom();
+        const newZoom = Math.min(currentZoom + 2, 18);  // Limit to zoom level 18
+
+        map.easeTo({
+            center: coordinates,
+            zoom: newZoom,
+            duration: 1000
+        });
     });
 
     map.on('mouseenter', 'clusters', () => {
@@ -95,14 +101,17 @@ map.on('load', () => {
     map.on('click', 'unclustered-point', (e) => {
         const { popUpMarkup } = e.features[0].properties;
         const coordinates = e.features[0].geometry.coordinates.slice();
-        const mag = Math.abs(e.features[0].properties.mag);
-        const z = Math.max(0, Math.min(6, Math.round(mag)));
 
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
             coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
 
-        new mapboxgl.Popup()
+        map.easeTo({
+            center: coordinates,
+            zoom: 14
+        });
+
+        new maptilersdk.Popup()
             .setLngLat(coordinates)
             .setHTML(popUpMarkup)
             .addTo(map);

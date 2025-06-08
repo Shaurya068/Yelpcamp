@@ -2,22 +2,20 @@ const User = require('../models/user')
 module.exports.renderRegister = (req, res) => {
     res.render('users/register')
 }
-module.exports.registerUser = async (req, res) => {
+module.exports.registerUser = async (req, res, next) => {
     try {
         const { username, email, password } = req.body
         const newUser = new User({ email, username })
         const registeredUser = await User.register(newUser, password)
         req.login(registeredUser, err => {
             if (err) {
-                next(err)
-            } else {
-                req.flash('success', 'Welcome to YelpCamp')
-                res.redirect('/campground')
+                return next(err)
             }
+            req.flash('success', 'Welcome to YelpCamp')
+            res.redirect('/campground')
         })
-
     } catch (e) {
-        req.flash('error', 'Something went wrong')
+        req.flash('error', e.message)
         res.redirect('/register')
     }
 }

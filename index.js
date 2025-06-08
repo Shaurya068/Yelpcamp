@@ -1,8 +1,8 @@
 // if (process.env.NODE_ENV !== "production") {
 //     require('dotenv').config();
 // }
-require('dotenv').config()
 
+require('dotenv').config();
 
 const express = require('express')
 const path = require('path')
@@ -22,9 +22,9 @@ const LocalStrategy = require('passport-local')
 const users = require('./routes/users.js')
 const sanitizeV5 = require('./utils/mongoSanitizeV5.js');
 const helmet = require('helmet');
-
-
-mongoose.connect('mongodb://127.0.0.1:27017/YelpCamp').then(() => console.log('Up and running!!!')).catch(err => console.log(err));
+const dbUrl='mongodb://127.0.0.1:27017/YelpCamp'
+const MongoDBStore=require("connect-mongo")(session)
+mongoose.connect(dbUrl).then(() => console.log('Up and running!!!')).catch(err => console.log(err));
 app.set('views', path.join(__dirname, '/views'))
 app.set('view engine', 'ejs')
 app.set('query parser', 'extended');
@@ -32,7 +32,13 @@ app.set('query parser', 'extended');
 
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
+
+const store=new MongoDBStore({url:dbUrl,secret:'thisisasecret',touchAfter:24*60*60})
+store.on("error",function(e){
+    console.log("Sesssion Store error",e)
+})
 const sessionConfig = {
+    store,
     secret: 'thisisasecret',
     resave: false,
     saveUninitialized: true,
@@ -64,10 +70,10 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: [],
-            connectSrc: ["'self'"],
-            imgSrc: ["'self'", "data:", "https:"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https:"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:"],
+            connectSrc: ["'self'", "https://api.maptiler.com", "https://*.maptiler.com", "https://cdn.maptiler.com"],
+            imgSrc: ["'self'", "data:", "https:", "https://*.maptiler.com", "https://api.maptiler.com", "https://cdn.maptiler.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https:", "https://*.maptiler.com", "https://api.maptiler.com", "https://cdn.maptiler.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "https://*.maptiler.com", "https://api.maptiler.com", "https://cdn.maptiler.com"],
             workerSrc: ["'self'", "blob:"],
             childSrc: ["'self'", "blob:"],
             objectSrc: ["'none'"],

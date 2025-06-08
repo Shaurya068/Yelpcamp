@@ -4,7 +4,7 @@ const maptilerClient = require("@maptiler/client");
 maptilerClient.config.apiKey = process.env.MAPTILER_API_KEY;
 
 module.exports.index = async (req, res) => {
-    const campgrounds = await Campground.find({})
+    const campgrounds = await Campground.find({});
     const geoJSON = {
         type: 'FeatureCollection',
         features: campgrounds.map(campground => ({
@@ -14,12 +14,14 @@ module.exports.index = async (req, res) => {
                 coordinates: campground.geometry.coordinates
             },
             properties: {
-                popUpMarkup: `<strong><a href="/campground/${campground._id}">${campground.title}</a></strong>
-                <p>${campground.location}</p>`
+                popUpMarkup: `
+                    <strong><a href="/campground/${campground._id}">${campground.title}</a></strong>
+                    <p>${campground.description.substring(0, 20)}...</p>
+                `
             }
         }))
-    }
-    res.render('campgrounds/index', { campgrounds, geoJSON })
+    };
+    res.render('campgrounds/index', { campgrounds, geoJSON });
 }
 
 module.exports.renderNewForm = (req, res) => {
