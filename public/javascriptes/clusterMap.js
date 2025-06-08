@@ -1,21 +1,18 @@
-maptilersdk.config.apiKey = mapToken;
-
-
-var map = new maptilersdk.Map({
+mapboxgl.accessToken = mapToken;
+const map = new mapboxgl.Map({
     container: 'map',
-    zoom: 0.3,
-    center: [0, 20],
-    style: maptilersdk.MapStyle.DATAVIZ.DARK
+    style: 'mapbox://styles/mapbox/streets-v12',
+    center: [-103.59179687498357, 40.66995747013945],
+    zoom: 3
 });
 
-map.on('load', function () {
-    // add a clustered GeoJSON source for a sample set of campgrounds
+map.on('load', () => {
     map.addSource('campgrounds', {
-        'type': 'geojson',
-        'data': campgrounds,
+        type: 'geojson',
+        data: campgrounds,
         cluster: true,
-        clusterMaxZoom: 14, // Max zoom to cluster points on
-        clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+        clusterMaxZoom: 14,
+        clusterRadius: 50
     });
 
     map.addLayer({
@@ -24,28 +21,23 @@ map.on('load', function () {
         source: 'campgrounds',
         filter: ['has', 'point_count'],
         paint: {
-            // Use step expressions (https://docs.maptiler.com/gl-style-specification/expressions/#step)
-            // with three steps to implement three types of circles:
-            //   * Blue, 20px circles when point count is less than 100
-            //   * Yellow, 30px circles when point count is between 100 and 750
-            //   * Pink, 40px circles when point count is greater than or equal to 750
             'circle-color': [
                 'step',
                 ['get', 'point_count'],
                 '#51bbd6',
-                10,
+                100,
                 '#f1f075',
-                30,
+                750,
                 '#f28cb1'
             ],
             'circle-radius': [
                 'step',
                 ['get', 'point_count'],
-                15,
-                10,
                 20,
+                100,
                 30,
-                30
+                750,
+                40
             ]
         }
     });
@@ -69,58 +61,57 @@ map.on('load', function () {
         filter: ['!', ['has', 'point_count']],
         paint: {
             'circle-color': '#11b4da',
-            'circle-radius': 4,
+            'circle-radius': 8,
             'circle-stroke-width': 1,
             'circle-stroke-color': '#fff'
         }
     });
 
-    // inspect a cluster on click
-    map.on('click', 'clusters', async function (e) {
+    map.on('click', 'clusters', (e) => {
         const features = map.queryRenderedFeatures(e.point, {
             layers: ['clusters']
         });
         const clusterId = features[0].properties.cluster_id;
-        const zoom = await map.getSource('campgrounds').getClusterExpansionZoom(clusterId);
-        map.easeTo({
-            center: features[0].geometry.coordinates,
-            zoom
-        });
+        map.getSource('campgrounds').getClusterExpansionZoom(
+            clusterId,
+            (err, zoom) => {
+                if (err) return;
+
+                map.easeTo({
+                    center: features[0].geometry.coordinates,
+                    zoom: zoom
+                });
+            }
+        );
     });
 
-    // When a click event occurs on a feature in
-    // the unclustered-point layer, open a popup at
-    // the location of the feature, with
-    // description HTML from its properties.
-    map.on('click', 'unclustered-point', function (e) {
-        var coordinates = e.features[0].geometry.coordinates.slice();
-     const text=e.features[0].properties.popUpMarkup
+    map.on('mouseenter', 'clusters', () => {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+    map.on('mouseleave', 'clusters', () => {
+        map.getCanvas().style.cursor = '';
+    });
 
-        // Ensure that if the map is zoomed out such that
-        // multiple copies of the feature are visible, the
-        // popup appears over the copy being pointed to.
+    map.on('click', 'unclustered-point', (e) => {
+        const { popUpMarkup } = e.features[0].properties;
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const mag = Math.abs(e.features[0].properties.mag);
+        const z = Math.max(0, Math.min(6, Math.round(mag)));
+
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
             coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
 
-        new maptilersdk.Popup()
+        new mapboxgl.Popup()
             .setLngLat(coordinates)
-            .setHTML(
-                text
-            )
+            .setHTML(popUpMarkup)
             .addTo(map);
     });
 
-    map.on('mouseenter', 'clusters', function () {
+    map.on('mouseenter', 'unclustered-point', () => {
         map.getCanvas().style.cursor = 'pointer';
     });
-    map.on('mouseleave', 'clusters', function () {
-        map.getCanvas().style.cursor = '';
-    });
-    map.on('mouseenter', 'unclustered-point', function () {
-        map.getCanvas().style.cursor = 'pointer';
-    });
-    map.on('mouseleave', 'unclustered-point', function () {
+    map.on('mouseleave', 'unclustered-point', () => {
         map.getCanvas().style.cursor = '';
     });
 });

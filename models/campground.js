@@ -2,6 +2,8 @@ const mongoose = require('mongoose')
 const { campgroundSchema } = require('../schemas')
 const { required } = require('joi')
 const { Schema } = mongoose
+const Review = require('./review')
+
 const ImageSchema = new Schema({
     url: String,
     filename: String
@@ -9,7 +11,7 @@ const ImageSchema = new Schema({
 ImageSchema.virtual('thumbnail').get(function () {
     return this.url.replace('/upload', '/upload/w_200')
 })
-const opts={toJSON:{virtuals:true},toObject: { virtuals: true }};
+const opts = { toJSON: { virtuals: true }, toObject: { virtuals: true } };
 const CampgroundSchema = new Schema({
     title: {
         type: String,
@@ -48,9 +50,9 @@ const CampgroundSchema = new Schema({
             ref: 'Review'
         }
     ],
-   
 
-},opts)
+
+}, opts)
 CampgroundSchema.virtual('properties.popUpMarkup').get(function () {
     return `<a href="/campground/${this._id}">${this.title}</a>`
 })

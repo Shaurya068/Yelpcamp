@@ -5,11 +5,27 @@ maptilerClient.config.apiKey = process.env.MAPTILER_API_KEY;
 
 module.exports.index = async (req, res) => {
     const campgrounds = await Campground.find({})
-    res.render('campgrounds/index', { campgrounds })
+    const geoJSON = {
+        type: 'FeatureCollection',
+        features: campgrounds.map(campground => ({
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: campground.geometry.coordinates
+            },
+            properties: {
+                popUpMarkup: `<strong><a href="/campground/${campground._id}">${campground.title}</a></strong>
+                <p>${campground.location}</p>`
+            }
+        }))
+    }
+    res.render('campgrounds/index', { campgrounds, geoJSON })
 }
+
 module.exports.renderNewForm = (req, res) => {
     res.render('campgrounds/new')
 }
+
 module.exports.show = async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id).populate({
@@ -26,18 +42,21 @@ module.exports.show = async (req, res) => {
     }
     res.render('campgrounds/show', { campground })
 }
+
 module.exports.edit = async (req, res) => {
     const { id } = req.params;
     const camp = await Campground.findById(id)
     console.log(req.body)
     res.render('campgrounds/edit', { camp })
 }
+
 module.exports.deletePage = async (req, res) => {
     const { id } = req.params
     const campground = await Campground.findByIdAndDelete(id)
     req.flash('success', 'Successfully deleted a campground')
     res.redirect('/campground')
 }
+
 module.exports.updatePage = async (req, res) => {
     const { id } = req.params
     const geoData = await maptilerClient.geocoding.forward(req.body.campground.location, { limit: 1 });
@@ -56,6 +75,7 @@ module.exports.updatePage = async (req, res) => {
     req.flash('success', 'Successfully updated a campground')
     res.redirect(`/campground/${id}`)
 }
+
 module.exports.createForm = async (req, res, next) => {
     const geoData = await maptilerClient.geocoding.forward(req.body.campground.location, { limit: 1 });
 

@@ -1,6 +1,7 @@
-if (process.env.NODE_ENV !== "production") {
-    require('dotenv').config();
-}
+// if (process.env.NODE_ENV !== "production") {
+//     require('dotenv').config();
+// }
+require('dotenv').config()
 
 
 const express = require('express')
@@ -20,7 +21,7 @@ const passport = require('passport')
 const LocalStrategy = require('passport-local')
 const users = require('./routes/users.js')
 const sanitizeV5 = require('./utils/mongoSanitizeV5.js');
-
+const helmet = require('helmet');
 
 
 mongoose.connect('mongodb://127.0.0.1:27017/YelpCamp').then(() => console.log('Up and running!!!')).catch(err => console.log(err));
@@ -37,6 +38,7 @@ const sessionConfig = {
     saveUninitialized: true,
     cookie: {
         httpOnly: true,
+        //secure:true,
         expires: Date.now() * 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7,
     }
@@ -52,11 +54,31 @@ passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 app.use((req, res, next) => {
     res.locals.currentUser = req.user
-    res.locals.currentPath=req.path
+    res.locals.currentPath = req.path
     res.locals.success = req.flash('success')
     res.locals.error = req.flash('error')
     next()
 })
+
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: [],
+            connectSrc: ["'self'"],
+            imgSrc: ["'self'", "data:", "https:"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:"],
+            workerSrc: ["'self'", "blob:"],
+            childSrc: ["'self'", "blob:"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'self'"],
+        },
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false,
+    crossOriginOpenerPolicy: false,
+}))
 
 
 app.use('/', users)
